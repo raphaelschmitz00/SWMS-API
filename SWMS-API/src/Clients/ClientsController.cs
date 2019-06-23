@@ -46,11 +46,9 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> Put(long id, Client client)
+		[HttpPut]
+		public async Task<IActionResult> Put(Client client)
 		{
-			if (id != client.Id) return BadRequest();
-
 			_swmsContext.Entry(client).State = EntityState.Modified;
 			await _swmsContext.SaveChangesAsync();
 
@@ -58,7 +56,7 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpDelete("{id}")]
+		[HttpDelete]
 		public async Task<IActionResult> Delete(long id)
 		{
 			Client client = await _swmsContext.Clients.FindAsync(id);
