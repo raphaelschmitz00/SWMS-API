@@ -26,6 +26,15 @@ namespace SwmsApi
 				options.UseSqlServer(Configuration.GetConnectionString("SwmsContext")));
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+			services.AddCors(options =>
+			{
+				options.AddPolicy("CorsPolicy",
+					builder => builder.AllowAnyOrigin()
+						.AllowAnyMethod()
+						.AllowAnyHeader()
+						.AllowCredentials());
+			});
 		}
 
 
@@ -41,6 +50,9 @@ namespace SwmsApi
 			}
 
 			app.UseHttpsRedirection();
+			app.UseCors("CorsPolicy");
+
+
 			app.UseMvc();
 		}
 	}
