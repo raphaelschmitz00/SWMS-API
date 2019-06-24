@@ -57,12 +57,12 @@ namespace SwmsApi.Clients
 
 
 		[HttpDelete]
-		public async Task<IActionResult> Delete(long id)
+		public async Task<IActionResult> Delete(Client client)
 		{
-			Client client = await _swmsContext.Clients.FindAsync(id);
-			if (client == null) return NotFound();
+			Client internalClient = await _swmsContext.Clients.FindAsync(client.Id);
+			if (internalClient == null) return NotFound();
 
-			_swmsContext.Clients.Remove(client);
+			_swmsContext.Clients.Remove(internalClient);
 			await _swmsContext.SaveChangesAsync();
 
 			return NoContent();
