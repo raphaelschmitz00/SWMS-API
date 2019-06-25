@@ -84,7 +84,7 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpDelete]
+		[HttpDelete("deleteo")]
 		public async Task<IActionResult> Deleteo(Client client)
 		{
 			_swmsContext.Entry(client).State = EntityState.Deleted;
