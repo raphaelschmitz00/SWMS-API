@@ -59,35 +59,10 @@ namespace SwmsApi.Clients
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> Delete(long id)
 		{
-			//_swmsContext.Entry(client).State = EntityState.Deleted;
-
 			Client internalClient = await _swmsContext.Clients.FindAsync(id);
 			if (internalClient == null) return NotFound();
 
 			_swmsContext.Clients.Remove(internalClient);
-			await _swmsContext.SaveChangesAsync();
-
-			return NoContent();
-		}
-
-
-		[HttpDelete]
-		public async Task<IActionResult> Delete(Client client)
-		{
-			Client internalClient = await _swmsContext.Clients.FindAsync(client.Id);
-			if (internalClient == null) return NotFound();
-
-			_swmsContext.Clients.Remove(internalClient);
-			await _swmsContext.SaveChangesAsync();
-
-			return NoContent();
-		}
-
-
-		[HttpDelete("deleteo")]
-		public async Task<IActionResult> Deleteo(Client client)
-		{
-			_swmsContext.Entry(client).State = EntityState.Deleted;
 			await _swmsContext.SaveChangesAsync();
 
 			return NoContent();
