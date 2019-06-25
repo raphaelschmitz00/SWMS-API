@@ -56,7 +56,7 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpDelete("delete/{id}")]
+		[HttpDelete("{id}")]
 		public async Task<IActionResult> Delete(long id)
 		{
 			//_swmsContext.Entry(client).State = EntityState.Deleted;
