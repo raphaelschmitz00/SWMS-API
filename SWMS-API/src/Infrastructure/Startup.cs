@@ -68,7 +68,8 @@ namespace SwmsApi.Infrastructure
 		}
 
 
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, SwmsContext swmsContext)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+			//, SwmsContext swmsContext)
 		{
 			//swmsContext.Database.Migrate();
 			
