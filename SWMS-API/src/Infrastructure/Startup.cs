@@ -68,8 +68,10 @@ namespace SwmsApi.Infrastructure
 		}
 
 
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env, SwmsContext swmsContext)
 		{
+			swmsContext.Database.Migrate();
+			
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
