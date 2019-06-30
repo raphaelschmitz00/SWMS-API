@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using SwmsApi.Users;
 
 
-namespace SwmsApi
+namespace SwmsApi.Infrastructure
 {
 	public class Startup
 	{
@@ -35,6 +38,33 @@ namespace SwmsApi
 						.AllowAnyHeader()
 						.AllowCredentials());
 			});
+			
+			
+			
+			IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
+			services.Configure<AppSettings>(appSettingsSection);
+
+			AppSettings appSettings = appSettingsSection.Get<AppSettings>();
+			byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
+			services.AddAuthentication(x =>
+				{
+					x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+					x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				})
+				.AddJwtBearer(x =>
+				{
+					x.RequireHttpsMetadata = false;
+					x.SaveToken = true;
+					x.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuerSigningKey = true,
+						IssuerSigningKey = new SymmetricSecurityKey(key),
+						ValidateIssuer = false,
+						ValidateAudience = false
+					};
+				});
+
+			services.AddScoped<IUserService, UserService>();
 		}
 
 
@@ -51,7 +81,7 @@ namespace SwmsApi
 
 			app.UseHttpsRedirection();
 			app.UseCors("CorsPolicy");
-
+			app.UseAuthentication();
 
 			app.UseMvc();
 		}
