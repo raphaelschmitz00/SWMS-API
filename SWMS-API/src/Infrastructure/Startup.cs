@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SwmsApi.Users;
+using SwmsApi.Users.Controllers;
 
 
 namespace SwmsApi.Infrastructure
@@ -41,6 +42,7 @@ namespace SwmsApi.Infrastructure
 			
 
 			IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
+			services.Configure<AppSettings>(appSettingsSection);
 			AppSettings appSettings = appSettingsSection.Get<AppSettings>();
 			byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
 			services.AddAuthentication(x =>
@@ -61,7 +63,9 @@ namespace SwmsApi.Infrastructure
 					};
 				});
 
-			services.AddScoped<IUserService, UserService>();
+			services.AddScoped<IPasswordHasher, PasswordHasher>();
+			services.AddScoped<IJwtFactory, JwtFactory>();
+
 		}
 
 
