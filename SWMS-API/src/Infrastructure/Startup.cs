@@ -40,7 +40,7 @@ namespace SwmsApi.Infrastructure
 			});
 			
 			
-			
+			/*
 			IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
 			services.Configure<AppSettings>(appSettingsSection);
 
@@ -65,6 +65,8 @@ namespace SwmsApi.Infrastructure
 				});
 
 			services.AddScoped<IUserService, UserService>();
+			
+			*/
 		}
 
 
@@ -84,7 +86,7 @@ namespace SwmsApi.Infrastructure
 
 			app.UseHttpsRedirection();
 			app.UseCors("CorsPolicy");
-			app.UseAuthentication();
+			//app.UseAuthentication();
 
 			app.UseMvc();
 		}
