@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SwmsApi.Users
 {
+	/*
 	[Authorize]
 	[ApiController]
 	[Route("[controller]")]
@@ -39,4 +40,5 @@ namespace SwmsApi.Users
 			return Ok(users);
 		}
 	}
+	*/
 }
