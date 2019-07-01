@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Text;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,6 @@ namespace SwmsApi.Infrastructure
 		{
 			services.AddDbContext<SwmsContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("SwmsContext")));
-
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 			services.AddCors(options =>
@@ -36,13 +36,14 @@ namespace SwmsApi.Infrastructure
 			});
 			
 			
-			/*
 			IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
 			services.Configure<AppSettings>(appSettingsSection);
 
 			AppSettings appSettings = appSettingsSection.Get<AppSettings>();
 			byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
-			services.AddAuthentication(x =>
+			
+			/*
+        			services.AddAuthentication(x =>
 				{
 					x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 					x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
