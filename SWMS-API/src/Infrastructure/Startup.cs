@@ -73,13 +73,13 @@ namespace SwmsApi.Infrastructure
 		{
 			//swmsContext.Database.Migrate();
 			
-			if (env.IsDevelopment())
+			//if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 			}
-			else
+			//else
 			{
-				app.UseHsts();
+				//app.UseHsts();
 			}
 
 			app.UseHttpsRedirection();
