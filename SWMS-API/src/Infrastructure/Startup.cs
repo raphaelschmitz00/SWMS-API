@@ -1,13 +1,9 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using SwmsApi.Users;
 
 
 namespace SwmsApi.Infrastructure
@@ -70,19 +66,14 @@ namespace SwmsApi.Infrastructure
 		}
 
 
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-			//, SwmsContext swmsContext)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env, SwmsContext swmsContext)
 		{
-			//swmsContext.Database.Migrate();
+			swmsContext.Database.Migrate();
 			
-			//if (env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
-			//else
-			{
-				//app.UseHsts();
-			}
+			if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+			else app.UseHsts();
+			
+			
 
 			app.UseHttpsRedirection();
 			app.UseCors("CorsPolicy");
