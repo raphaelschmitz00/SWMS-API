@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,12 +41,8 @@ namespace SwmsApi.Infrastructure
 			
 
 			IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
-			
-			string secret = appSettingsSection["Secret"];
-			byte[] key = Encoding.ASCII.GetBytes(secret);
-
-			//AppSettings appSettings = appSettingsSection.Get<AppSettings>();
-			//byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
+			AppSettings appSettings = appSettingsSection.Get<AppSettings>();
+			byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
 			services.AddAuthentication(x =>
 				{
 					x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
