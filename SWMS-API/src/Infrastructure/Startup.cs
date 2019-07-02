@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +29,7 @@ namespace SwmsApi.Infrastructure
 		{
 			services.AddDbContext<SwmsContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("SwmsContext")));
+			
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 			services.AddCors(options =>
@@ -39,7 +41,10 @@ namespace SwmsApi.Infrastructure
 						.AllowCredentials());
 			});
 
-			
+
+			services.AddIdentity<SwmsUser, IdentityRole<long>>()
+				.AddEntityFrameworkStores<SwmsContext>()
+				.AddDefaultTokenProviders();
 
 			IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
 			services.Configure<AppSettings>(appSettingsSection);
@@ -80,6 +85,7 @@ namespace SwmsApi.Infrastructure
 			app.UseHttpsRedirection();
 			app.UseCors("CorsPolicy");
 			app.UseAuthentication();
+			
 
 			app.UseMvc();
 		}

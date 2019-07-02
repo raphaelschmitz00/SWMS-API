@@ -28,28 +28,28 @@ namespace SwmsApi.Users.Controllers
 
 		[AllowAnonymous]
 		[HttpPost("authenticate")]
-		public IActionResult Authenticate([FromBody] User userParam)
+		public IActionResult Authenticate([FromBody] SwmsUser swmsUserParam)
 		{
-			string userParamUsername = userParam.Username;
-			string userParamPassword = userParam.Password;
+			string userParamUsername = swmsUserParam.UserName;
+			string userParamPassword = swmsUserParam.PasswordHash;
 
-			User user = _swmsContext.Users.SingleOrDefault(
-				x => x.Username == userParamUsername && _passwordHasher.Verify(userParamPassword, x.Password));
-			if (user == null) return BadRequest(new {message = "Username or password is incorrect"});
+			SwmsUser swmsUser = _swmsContext.Users.SingleOrDefault(
+				x => x.UserName == userParamUsername && _passwordHasher.Verify(userParamPassword, x.PasswordHash));
+			if (swmsUser == null) return BadRequest(new {message = "Username or password is incorrect"});
 
-			user.Token = _jwtFactory.CreateToken(user.Id);
-			user.Password = null;
-			return Ok(user);
+			swmsUser.Token = _jwtFactory.CreateToken(swmsUser.Id);
+			swmsUser.PasswordHash = null;
+			return Ok(swmsUser);
 		}
 
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<User>>> Index()
+		public async Task<ActionResult<IEnumerable<SwmsUser>>> Index()
 		{
-			List<User> users = await _swmsContext.Users.ToListAsync();
+			List<SwmsUser> users = await _swmsContext.Users.ToListAsync();
 			return users.Select(x =>
 			{
-				x.Password = null;
+				x.PasswordHash = null;
 				return x;
 			}).ToList();
 		}
@@ -57,16 +57,16 @@ namespace SwmsApi.Users.Controllers
 		
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<User>> Get(long id)
+		public async Task<ActionResult<SwmsUser>> Get(long id)
 		{
-			User user = await _swmsContext.Users.FindAsync(id);
-			if (user == null) return NotFound();
-			return user;
+			SwmsUser swmsUser = await _swmsContext.Users.FindAsync(id);
+			if (swmsUser == null) return NotFound();
+			return swmsUser;
 		}
 
 
 		[HttpPost]
-		public async Task<ActionResult<User>> Create(User client)
+		public async Task<ActionResult<SwmsUser>> Create(SwmsUser client)
 		{
 			_swmsContext.Users.Add(client);
 			await _swmsContext.SaveChangesAsync();
@@ -75,9 +75,9 @@ namespace SwmsApi.Users.Controllers
 
 
 		[HttpPut]
-		public async Task<IActionResult> Put(User user)
+		public async Task<IActionResult> Put(SwmsUser swmsUser)
 		{
-			_swmsContext.Entry(user).State = EntityState.Modified;
+			_swmsContext.Entry(swmsUser).State = EntityState.Modified;
 			await _swmsContext.SaveChangesAsync();
 			return NoContent();
 		}
@@ -86,10 +86,10 @@ namespace SwmsApi.Users.Controllers
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> Delete(long id)
 		{
-			User user = await _swmsContext.Users.FindAsync(id);
-			if (user == null) return NotFound();
+			SwmsUser swmsUser = await _swmsContext.Users.FindAsync(id);
+			if (swmsUser == null) return NotFound();
 
-			_swmsContext.Users.Remove(user);
+			_swmsContext.Users.Remove(swmsUser);
 			await _swmsContext.SaveChangesAsync();
 
 			return NoContent();
