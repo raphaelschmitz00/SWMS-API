@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using SwmsApi.Infrastructure.Emails;
 using SwmsApi.Users;
 using SwmsApi.Users.Controllers;
 
@@ -30,8 +31,10 @@ namespace SwmsApi.Infrastructure
 			services.AddDbContext<SwmsContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("SwmsContext")));
 			
+			
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+			
 			services.AddCors(options =>
 			{
 				options.AddPolicy("CorsPolicy",
@@ -45,21 +48,21 @@ namespace SwmsApi.Infrastructure
 			services.AddIdentity<SwmsUser, IdentityRole<long>>()
 				.AddEntityFrameworkStores<SwmsContext>()
 				.AddDefaultTokenProviders();
-
+			
 			IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
 			services.Configure<AppSettings>(appSettingsSection);
 			AppSettings appSettings = appSettingsSection.Get<AppSettings>();
 			byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
-			services.AddAuthentication(x =>
+			services.AddAuthentication(options =>
 				{
-					x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-					x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+					options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+					options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 				})
-				.AddJwtBearer(x =>
+				.AddJwtBearer(options =>
 				{
-					x.RequireHttpsMetadata = false;
-					x.SaveToken = true;
-					x.TokenValidationParameters = new TokenValidationParameters
+					options.RequireHttpsMetadata = false;
+					options.SaveToken = true;
+					options.TokenValidationParameters = new TokenValidationParameters
 					{
 						ValidateIssuerSigningKey = true,
 						IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -68,6 +71,10 @@ namespace SwmsApi.Infrastructure
 					};
 				});
 
+			
+			services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+			services.AddSingleton<IEmailSender, EmailSender>();
+			
 			services.AddScoped<IPasswordHasher, PasswordHasher>();
 			services.AddScoped<IJwtFactory, JwtFactory>();
 
