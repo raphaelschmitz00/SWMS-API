@@ -5,7 +5,7 @@ using SwmsApi.Clients;
 using SwmsApi.Users;
 
 
-namespace SwmsApi
+namespace SwmsApi.Infrastructure.Databases
 {
 	public class SwmsContext : IdentityDbContext<SwmsUser, IdentityRole<long>, long>
 	{

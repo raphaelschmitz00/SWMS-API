@@ -1,91 +1,70 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SwmsApi.Users.Authorization;
+using SwmsApi.Users.EmailConfirmation;
 
 
 namespace SwmsApi.Users.Controllers
 {
+	[Authorize]
 	[ApiController]
 	[Route("[controller]")]
 	public class UsersController : ControllerBase
 	{
-		private readonly SwmsContext _swmsContext;
-		private readonly IPasswordHasher _passwordHasher;
-		private readonly IJwtFactory _jwtFactory;
 		private readonly UserManager<SwmsUser> _userManager;
-		private readonly IUserConfirmationEmailSender _userConfirmationEmailSender;
+		private readonly IUserEmailConfirmer _userEmailConfirmer;
+		private readonly ISwmsAuthorizer _swmsAuthorizer;
 
 
-		public UsersController(SwmsContext swmsContext, IPasswordHasher passwordHasher, IJwtFactory jwtFactory,
-			UserManager<SwmsUser> userManager, IUserConfirmationEmailSender userConfirmationEmailSender)
+		public UsersController(UserManager<SwmsUser> userManager, IUserEmailConfirmer userEmailConfirmer,
+			ISwmsAuthorizer swmsAuthorizer)
 		{
-			_swmsContext = swmsContext;
-			_passwordHasher = passwordHasher;
-			_jwtFactory = jwtFactory;
 			_userManager = userManager;
-			_userConfirmationEmailSender = userConfirmationEmailSender;
+			_userEmailConfirmer = userEmailConfirmer;
+			_swmsAuthorizer = swmsAuthorizer;
 		}
 
 
+		[AllowAnonymous]
 		[HttpPost("sign-up")]
-		public async Task<ActionResult<SwmsUser>> SignUp(SignUpModel signUpModel)
+		public async Task<ActionResult<SwmsUser>> SignUp(SignUpDto signUpDto)
 		{
-			SwmsUser swmsUser = new SwmsUser();
-			swmsUser.Email = signUpModel.Email;
-			swmsUser.UserName = signUpModel.UserName;
-			IdentityResult identityResult = await _userManager.CreateAsync(swmsUser, signUpModel.Password);
-			if (!identityResult.Succeeded) return BadRequest(identityResult.Errors);
-			return Ok(swmsUser);
+			return await _swmsAuthorizer.SignUp(this, signUpDto);
+		}
+
+
+		[AllowAnonymous]
+		[HttpPost("sign-in")]
+		public async Task<object> Authenticate(LoginDto loginDto)
+		{
+			return await _swmsAuthorizer.Authenticate(this, loginDto);
 		}
 
 
 		[HttpPost("request-confirmation-email")]
-		public async Task<ActionResult<SwmsUser>> RequestConfirmationEmail([FromBody]string email)
+		public async Task<ActionResult<SwmsUser>> RequestConfirmationEmail(
+			RequestConfirmationEmailDto requestConfirmationEmailDto)
 		{
-			SwmsUser swmsUser = await _userManager.FindByEmailAsync(email);
-			if (swmsUser == null) return BadRequest("Can't find user!");
-
-			await _userConfirmationEmailSender.Send(Url, Request, swmsUser);
-			return Ok();
+			return await _userEmailConfirmer.RequestConfirmationEmail(this, requestConfirmationEmailDto);
 		}
 
 
 		[HttpPost("confirm-email")]
-		public async Task<ActionResult<SwmsUser>> ConfirmEmail(long userId, string token)
+		public async Task<ActionResult<SwmsUser>> ConfirmEmail(ConfirmEmailDto confirmEmailDto)
 		{
-			SwmsUser swmsUser = await _userManager.FindByIdAsync(userId.ToString());
-			if (swmsUser == null) return BadRequest();
-
-			IdentityResult identityResult = await _userManager.ConfirmEmailAsync(swmsUser, token);
-			if (identityResult.Succeeded) return Ok();
-
-			return BadRequest();
-		}
-
-
-		[HttpPost("authenticate")]
-		public IActionResult Authenticate(SwmsUser swmsUserParam)
-		{
-			string userParamUsername = swmsUserParam.UserName;
-			string userParamPassword = swmsUserParam.PasswordHash;
-
-			SwmsUser swmsUser = _swmsContext.Users.SingleOrDefault(
-				x => x.UserName == userParamUsername && _passwordHasher.Verify(userParamPassword, x.PasswordHash));
-			if (swmsUser == null) return BadRequest(new {message = "Username or password is incorrect"});
-
-			swmsUser.Token = _jwtFactory.CreateToken(swmsUser.Id);
-			swmsUser.PasswordHash = null;
-			return Ok(swmsUser);
+			return await _userEmailConfirmer.ConfirmEmail(this, confirmEmailDto);
 		}
 
 
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<SwmsUser>>> Index()
 		{
-			List<SwmsUser> users = await _swmsContext.Users.ToListAsync();
+			List<SwmsUser> users = await _userManager.Users.ToListAsync();
 			return users.Select(x =>
 			{
 				x.PasswordHash = null;
@@ -94,33 +73,30 @@ namespace SwmsApi.Users.Controllers
 		}
 
 
-		[HttpGet("{id}")]
+		[HttpGet("get/{id}")]
 		public async Task<ActionResult<SwmsUser>> Get(long id)
 		{
-			SwmsUser swmsUser = await _swmsContext.Users.FindAsync(id);
-			if (swmsUser == null) return BadRequest();
+			SwmsUser swmsUser = await _userManager.FindByIdAsync(id.ToString());
+			if (swmsUser == null) return NotFound();
 			return swmsUser;
 		}
 
 
-		[HttpPut]
+		[HttpPut("update")]
 		public async Task<IActionResult> Put(SwmsUser swmsUser)
 		{
-			_swmsContext.Entry(swmsUser).State = EntityState.Modified;
-			await _swmsContext.SaveChangesAsync();
+			await _userManager.UpdateAsync(swmsUser);
 			return NoContent();
 		}
 
 
-		[HttpDelete("{id}")]
+		[HttpDelete("delete/{id}")]
 		public async Task<IActionResult> Delete(long id)
 		{
-			SwmsUser swmsUser = await _swmsContext.Users.FindAsync(id);
+			SwmsUser swmsUser = await _userManager.FindByIdAsync(id.ToString());
 			if (swmsUser == null) return NotFound();
 
-			_swmsContext.Users.Remove(swmsUser);
-			await _swmsContext.SaveChangesAsync();
-
+			await _userManager.DeleteAsync(swmsUser);
 			return NoContent();
 		}
 	}

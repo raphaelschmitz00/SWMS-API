@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
 
-namespace SwmsApi.Users.Controllers
+namespace SwmsApi.Users.Authorization
 {
-	public class SignUpModel
+	public class SignUpDto
 	{
 		[Required]
 		public string Email { get; set; }

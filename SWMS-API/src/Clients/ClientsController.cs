@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SwmsApi.Infrastructure.Databases;
 
 
 namespace SwmsApi.Clients
 {
+	[Authorize]
 	[Route("[controller]")]
 	[ApiController]
 	public class ClientsController : ControllerBase
@@ -26,7 +29,7 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpGet("{id}")]
+		[HttpGet("get/{id}")]
 		public async Task<ActionResult<Client>> Get(long id)
 		{
 			Client client = await _swmsContext.Clients.FindAsync(id);
@@ -36,7 +39,7 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpPost]
+		[HttpPost("create")]
 		public async Task<ActionResult<Client>> Create(Client client)
 		{
 			_swmsContext.Clients.Add(client);
@@ -46,7 +49,7 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpPut]
+		[HttpPut("update")]
 		public async Task<IActionResult> Put(Client client)
 		{
 			_swmsContext.Entry(client).State = EntityState.Modified;
@@ -56,7 +59,7 @@ namespace SwmsApi.Clients
 		}
 
 
-		[HttpDelete("{id}")]
+		[HttpDelete("delete/{id}")]
 		public async Task<IActionResult> Delete(long id)
 		{
 			Client internalClient = await _swmsContext.Clients.FindAsync(id);

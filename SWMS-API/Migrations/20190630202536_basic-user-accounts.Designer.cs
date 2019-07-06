@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SwmsApi;
+using SwmsApi.Infrastructure.Databases;
+
 
 namespace SwmsApi.Migrations
 {
