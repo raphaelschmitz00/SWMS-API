@@ -33,10 +33,10 @@ namespace SwmsApi.Infrastructure
 		{
 			services.AddDbContext<SwmsContext>(options =>
 				options.UseSqlServer(Configuration.GetConnectionString("SwmsContext")));
-			
-			
+
+
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-			
+
 			services.AddCors(options =>
 			{
 				options.AddPolicy("CorsPolicy",
@@ -50,42 +50,39 @@ namespace SwmsApi.Infrastructure
 			services.AddIdentity<SwmsUser, IdentityRole<long>>()
 				.AddEntityFrameworkStores<SwmsContext>()
 				.AddDefaultTokenProviders();
-			
-			
 
-			
-			
-				/*
-                                        		IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
-			services.Configure<AppSettings>(appSettingsSection);
-			AppSettings appSettings = appSettingsSection.Get<AppSettings>();
-			byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
-			
-			services.AddAuthentication(options =>
+
+			/*
+	                                        IConfigurationSection appSettingsSection = Configuration.GetSection("AppSettings");
+		services.Configure<AppSettings>(appSettingsSection);
+		AppSettings appSettings = appSettingsSection.Get<AppSettings>();
+		byte[] key = Encoding.ASCII.GetBytes(appSettings.Secret);
+		
+		services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(options =>
+			{
+				options.RequireHttpsMetadata = false;
+				options.SaveToken = true;
+				options.TokenValidationParameters = new TokenValidationParameters
 				{
-					options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-					options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-				})
-				.AddJwtBearer(options =>
-				{
-					options.RequireHttpsMetadata = false;
-					options.SaveToken = true;
-					options.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuerSigningKey = true,
-						IssuerSigningKey = new SymmetricSecurityKey(key),
-						ValidateIssuer = false,
-						ValidateAudience = false
-					};
-				});
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(key),
+					ValidateIssuer = false,
+					ValidateAudience = false
+				};
+			});
 */
-			
+
+			services.AddScoped<IUserConfirmationEmailSender, UserConfirmationEmailSender>();
 			services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
 			services.AddSingleton<IEmailSender, EmailSender>();
-			
+
 			services.AddScoped<IPasswordHasher, PasswordHasher>();
 			services.AddScoped<IJwtFactory, JwtFactory>();
-
 		}
 
 
@@ -100,7 +97,7 @@ namespace SwmsApi.Infrastructure
 			app.UseHttpsRedirection();
 			app.UseCors("CorsPolicy");
 			app.UseAuthentication();
-			
+
 
 			app.UseMvc();
 		}
