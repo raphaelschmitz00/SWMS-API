@@ -1,18 +1,19 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SwmsApi.Clients;
 using SwmsApi.Users;
 
 
-namespace SwmsApi
+namespace SwmsApi.Infrastructure.Databases
 {
-	public class SwmsContext : DbContext
+	public class SwmsContext : IdentityDbContext<SwmsUser, IdentityRole<long>, long>
 	{
 		public SwmsContext(DbContextOptions<SwmsContext> options) : base(options)
 		{
 		}
 
 
-		//public DbSet<User> Users { get; set; }
 		public DbSet<Client> Clients { get; set; }
 	}
 }
